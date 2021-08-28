@@ -1,38 +1,53 @@
-int rele01 = 7; //Relé lampada 1
-int rele02 = 6; //Relé lampada 2
-int aviso = 8; // LED para aviso
-char valor_leitura = 0; //Valor para ler do bluetooth do aplicativo
-             
+#define rele01 7 //Lampada 1
+#define rele02 6 //Lampada 2
+#define aviso 8  //LED vermelho para aviso
+
+char valor = 0; //Char para armazenar o que sem do Serial.read()
+   
 void setup() 
 {
-//-- Setando o pinMode  --//         
+  //Definindo o pinMode e ativando o Serial
+  Serial.begin(9600);         
   pinMode(rele01, OUTPUT);
   pinMode(rele02, OUTPUT);
   pinMode(aviso, OUTPUT);
-//------------------------//
-
- //Iniciar com as lampadas apagadas//
- digitalWrite(rele01, LOW);
- digitalWrite(rele02, LOW);
- //--------------------------------//
+  //----------------------//
+  //Iniciar com as lampadas apagadas e o aviso ligado//
+  digitalWrite(rele01, LOW);
+  digitalWrite(rele02, LOW);
+  digitalWrite(aviso, HIGH);
+  //----------------------//      
 }
 
 void loop()
 {
-  if(Serial.available() > 0)  {
-    
-    valor_leitura = Serial.read();
+  if(Serial.available() > 0) //Vendo se o Serial está disponivel  
+  {
+    //valor = Serial.read(); //Pegando o valor que ta chegando e igualando com um char
+    char valor = Serial.read();
 
-//------- Leitura dos valores do bluetooth -------// 
-    if(valor_leitura == '1'){            
+    Serial.println(valor);
+    Serial.println(Serial.read());
+    
+    //------- Leitura dos valores do bluetooth -------//
+    if(valor == '1'){            
       digitalWrite(rele01, HIGH);
       digitalWrite(rele02, HIGH);
       digitalWrite(aviso, LOW); 
-    } else if(valor_leitura == '0'){     
-      digitalWrite(7, LOW);
-      digitalWrite(8, HIGH);   
-    }
-//-----------------------------------------------//
-                              
-  } //Serial.available
-} //Void loop
+    } else if(valor == '0'){     
+      digitalWrite(rele01, LOW);
+      digitalWrite(rele02, LOW);
+      digitalWrite(aviso, HIGH);  
+  }
+  //-------------------------------------------------//
+  } 
+
+  //Caso a pessoa finalize o aplicativo, ou a conexão de bluetooth seja perdida. As lampadas UVC apagarão automaticamente
+  if(Serial.read() > 1) {
+    digitalWrite(rele01, LOW);
+    digitalWrite(rele02, LOW);
+    //--- A luz vermelha irá acender ---//
+    digitalWrite(aviso, HIGH);
+  }
+  
+}
